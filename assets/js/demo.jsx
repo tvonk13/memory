@@ -3,84 +3,26 @@ import ReactDOM from 'react-dom';
 import { Button } from 'reactstrap';
 
 export default function run_demo(root) {
-  ReactDOM.render(<Demo side={0}/>, root);
+  ReactDOM.render(<Demo score={0}/>, root);
 }
 
 class Demo extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { side: props.side };
+    this.state = { score: props.score };
   }
 
-  renderTile(i) {
-    return (
-      <div className="tile">
-        {i}
-      </div>
-    );
+  incrementScore() {
+    const currentScore = this.state.score;
+    this.state.score = currentScore + 1;
   }
 
   render() {
-    const tilesFlipped = 0;
 
     return (
       <div className="container">
-        <div className="row">
-          <div className="col-1">
-            <Tile value="A" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="B" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="C" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="D" show="true" />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-1">
-            <Tile value="E" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="F" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="G" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="H" show="true" />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-1">
-            <Tile value="A" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="B" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="C" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="D" show="true" />
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-1">
-            <Tile value="E" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="F" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="G" show="true" />
-          </div>
-          <div className="col-1">
-            <Tile value="H" show="true" />
-          </div>
-        </div>
+        <RenderGrid />
+        <div className="score">Score: {this.state.score}</div>
       </div>
     );
   }
@@ -104,20 +46,68 @@ class Tile extends React.Component {
   }
 
   render() {
-    return (
-      <RenderTile show={this.state.show} value={this.state.value} />
-    );
+    if (this.state.show === "true") {
+      return (
+        <button className="tile" id={this.state.value} onClick={() => {
+            if(this.state.show === "false") {
+              this.setState({show: "true"})
+            } else if(this.state.show === "true"){
+              this.setState({show: "false"})
+            }
+        }}>
+          {this.state.value}
+        </button>
+      );
+    } else {
+      return (
+        <button className="tile" id={this.state.value}></button>
+      );
+    }
   }
 }
 
 function RenderTile(params) {
   if (params.show === "true") {
       return (
-        <div className="tile" id={params.value}>{params.value}</div>
+        <button className="tile" id={params.value}>
+          {params.value}
+        </button>
       );
-  } else { 
+  } else {
       return (
-        <div classname="tile" id={params.value}></div>
+        <button className="tile" id={params.value}> </button>
       );
-  }  
+  }
 }
+
+function RenderGrid() {
+  return (
+    <div className="grid">
+      <div className="row">
+        <Tile value="A" show="true" />
+        <Tile value="B" show="true" />
+        <Tile value="C" show="true" />
+        <Tile value="D" show="true" />
+      </div>
+      <div className="row">
+        <Tile value="E" show="true" />
+        <Tile value="F" show="true" />
+        <Tile value="G" show="true" />
+        <Tile value="H" show="true" />
+      </div>
+      <div className="row">
+        <Tile value="A" show="true" />
+        <Tile value="B" show="true" />
+        <Tile value="C" show="true" />
+        <Tile value="D" show="true" />
+      </div>
+      <div className="row">
+        <Tile value="E" show="true" />
+        <Tile value="F" show="true" />
+        <Tile value="G" show="true" />
+        <Tile value="H" show="true" />
+      </div>
+    </div>
+  );
+}
+
