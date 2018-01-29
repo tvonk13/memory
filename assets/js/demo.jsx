@@ -38,29 +38,25 @@ class Tile extends React.Component {
   }
 
   toggleShow() {
-    if(this.state.show) {
+    if(this.state.show === "true") {
       this.setState({show: "false"});
     } else {
-      this.setSTate({show: "true"});
+      this.setState({show: "true"});
     }
+    console.log("toggleShow() called: ", this.state.show);
   }
 
   render() {
+    var toggle = this.toggleShow.bind(this);
     if (this.state.show === "true") {
       return (
-        <button className="tile" id={this.state.value} onClick={() => {
-            if(this.state.show === "false") {
-              this.setState({show: "true"})
-            } else if(this.state.show === "true"){
-              this.setState({show: "false"})
-            }
-        }}>
+        <button className="tile" id={this.state.value} onClick={toggle}>
           {this.state.value}
         </button>
       );
     } else {
       return (
-        <button className="tile" id={this.state.value}></button>
+        <button className="tile" id={this.state.value} onClick={toggle}></button>
       );
     }
   }
@@ -84,28 +80,28 @@ function RenderGrid() {
   return (
     <div className="grid">
       <div className="row">
-        <Tile value="A" show="true" />
-        <Tile value="B" show="true" />
-        <Tile value="C" show="true" />
-        <Tile value="D" show="true" />
+        <Tile value="A" show="false" />
+        <Tile value="B" show="false" />
+        <Tile value="C" show="false" />
+        <Tile value="D" show="false" />
       </div>
       <div className="row">
-        <Tile value="E" show="true" />
-        <Tile value="F" show="true" />
-        <Tile value="G" show="true" />
-        <Tile value="H" show="true" />
+        <Tile value="E" show="false" />
+        <Tile value="F" show="false" />
+        <Tile value="G" show="false" />
+        <Tile value="H" show="false" />
       </div>
       <div className="row">
-        <Tile value="A" show="true" />
-        <Tile value="B" show="true" />
-        <Tile value="C" show="true" />
-        <Tile value="D" show="true" />
+        <Tile value="A" show="false" />
+        <Tile value="B" show="false" />
+        <Tile value="C" show="false" />
+        <Tile value="D" show="false" />
       </div>
       <div className="row">
-        <Tile value="E" show="true" />
-        <Tile value="F" show="true" />
-        <Tile value="G" show="true" />
-        <Tile value="H" show="true" />
+        <Tile value="E" show="false" />
+        <Tile value="F" show="false" />
+        <Tile value="G" show="false" />
+        <Tile value="H" show="false" />
       </div>
     </div>
   );
