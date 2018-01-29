@@ -12,39 +12,112 @@ class Demo extends React.Component {
     this.state = { side: props.side };
   }
 
-  toggle(side) {
-    var side = +!this.state.side;
-    this.setState({side: side});
+  renderTile(i) {
+    return (
+      <div className="tile">
+        {i}
+      </div>
+    );
   }
 
   render() {
-    var toggle = this.toggle.bind(this);
+    const tilesFlipped = 0;
+
     return (
-      <div className="row">
-        <Side show={this.state.side == 0} toggle={toggle} />
-        <div className="col">
-          &nbsp;
+      <div className="container">
+        <div className="row">
+          <div className="col-1">
+            <Tile value="A" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="B" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="C" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="D" show="true" />
+          </div>
         </div>
-        <Side show={this.state.side == 1} toggle={toggle} />
+        <div className="row">
+          <div className="col-1">
+            <Tile value="E" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="F" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="G" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="H" show="true" />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-1">
+            <Tile value="A" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="B" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="C" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="D" show="true" />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-1">
+            <Tile value="E" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="F" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="G" show="true" />
+          </div>
+          <div className="col-1">
+            <Tile value="H" show="true" />
+          </div>
+        </div>
       </div>
     );
   }
 }
 
-function Side(params) {
-  if (params.show) {
-    return (
-      <div id="side-0" className="side col" onMouseOver={ () => params.toggle() }>
-        <Button onClick={ () => alert("cheater") }>Click Me</Button>
-      </div>
-    );
+class Tile extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      value: props.value,
+      show: props.show,
+    }
   }
-  else {
+
+  toggleShow() {
+    if(this.state.show) {
+      this.setState({show: "false"});
+    } else {
+      this.setSTate({show: "true"});
+    }
+  }
+
+  render() {
     return (
-      <div id="side-0" className="side col">
-        &nbsp;
-      </div>
+      <RenderTile show={this.state.show} value={this.state.value} />
     );
   }
 }
 
+function RenderTile(params) {
+  if (params.show === "true") {
+      return (
+        <div className="tile" id={params.value}>{params.value}</div>
+      );
+  } else { 
+      return (
+        <div classname="tile" id={params.value}></div>
+      );
+  }  
+}
