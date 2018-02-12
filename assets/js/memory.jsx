@@ -4,11 +4,11 @@ import { Button } from 'reactstrap';
 
 var tileList = [{value: "A", show: false, found: false}, {value: "B", show: false, found: false}, {value: "C", show: false, found: false}, {value: "D", show: false, found: false}, {value: "E", show: false, found: false}, {value: "F", show: false, found: false}, {value: "G", show: false, found: false}, {value: "H", show: false, found: false}, {value: "A", show: false, found: false}, {value: "B", show: false, found: false}, {value: "C", show: false, found: false}, {value: "D", show: false, found: false}, {value: "E", show: false, found: false}, {value: "F", show: false, found: false}, {value: "G", show: false, found: false}, {value: "H", show: false, found: false}]
 
-export default function run_demo(root) {
+export default function game_init(root) {
   ReactDOM.render(<Demo list={tileList} />, root);
 }
 
-class Demo extends React.Component {
+class Memory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
