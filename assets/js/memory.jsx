@@ -11,6 +11,7 @@ export default function game_init(root) {
 class Memory extends React.Component {
   constructor(props) {
     super(props);
+    this.channel = props.channel;
     this.state = {
       originalList: props.list,
       tileList: props.list,
@@ -18,74 +19,26 @@ class Memory extends React.Component {
       flippedTiles: [],
       message: "",
     };
+
+    this.channel.join()
+      .receive("ok", this.gotView().bind(this))
+      .receive("error", resp => {console.log("Unable to join", resp)});
   }
 
-  flip(index) {
-    let listCopy= JSON.parse(JSON.stringify(this.state.tileList));
-    let flippedCopy= JSON.parse(JSON.stringify(this.state.flippedTiles)); 
-    let scoreCopy= this.state.score;
-    
-    //tile shown but not found
-    if (listCopy[index].show && !listCopy[index].found) {
-        listCopy[index].show = false; //set show to false
-        if(flippedCopy.length > 0 && flippedCopy[0].index === index) {  //find index of element in flippedTiles and remove it
-          flippedCopy.splice(0, 1);
-        } else if(flippedCopy.length >0 && flippedCopy[1].index === index) {
-          flippedCopy.splice(1, 1);
-        }
-        this.setState({
-          tileList: listCopy,
-          flippedTiles: flippedCopy,
-          message: "",
-        });
-    //tile not shown and not found and one or less tile already flipped
-    } else if (!listCopy[index].show && !listCopy[index].found && flippedCopy.length < 2) {
-        listCopy[index].show = true;
-        flippedCopy.push({ //add flipped tile to list of flipped tiles
-          tileVal: listCopy[index].value,
-          index: index,
-        });
-        let messageText = "";
-        scoreCopy++;
-        if (flippedCopy.length === 2 && flippedCopy[0].tileVal === flippedCopy[1].tileVal) { //if two flipped tiles have same value
-          listCopy[flippedCopy[0].index].found = true;
-          listCopy[flippedCopy[0].index].value = "*";
-          listCopy[flippedCopy[1].index].found = true;
-          listCopy[flippedCopy[1].index].value = "*";
-          flippedCopy.pop();
-          flippedCopy.pop();
-          messageText="Match found!";
-          let flippedCount = 0;
-          for(var i = 0; i < listCopy.length; i++) { //check if all tiles have been found
-            if(listCopy[i].found){
-              flippedCount++;
-            }
-          }
-          if(flippedCount == 16) {
-            alert("You Won!");
-          }
-        }
-        this.setState({
-          tileList: listCopy,
-          flippedTiles: flippedCopy,
-          score: scoreCopy,
-          message: messageText,
-        });
-    //two tiles already flipped
-    } else if(!listCopy[index].show && !listCopy[index].found && flippedCopy.length == 2) {
-        console.log("can't flip more than 2 tiles at once!");
-        this.setState({message: "You can't flip more than 2 tiles at once!"});
-    //tile already found
-    } else {
-        console.log("that tile was already found!");
-        this.setState({message: "That tile was already found!"});
-    }
+  gotView(view) {
+    console.log("New view", view);
+    this.setState(view.game);
+  }
+
+  sendClick(ev) {
+    this.channel.push("tileClick", { index: ev.index list: ev.list })
+      .receive("ok", this.gotView.bind(this));
   }
 
   render() {
     return (
       <div className="container">
-        <RenderGrid list={this.state.tileList} onClick={this.flip.bind(this)}/>
+        <RenderGrid list={this.state.tileList} onClick={this.sendClick.bind(this)} flippedTiles={this.state.flippedTiles}/>
         <div className="score">Score: {this.state.score}</div>
         <button className="restart" onClick={() => this.setState({
             tileList: this.state.originalList,
@@ -102,52 +55,93 @@ class Memory extends React.Component {
 }
 
 function RenderTile(params) {
-  var flip=params.onClick;
+  var sendClick=params.onClick;
   if (params.show && !params.found) {
       return (
-        <button className="tile" id={params.value} onClick={() => flip(params.index)}>
+        <button className="tile" id={params.value} onClick={() => sendClick(params)}>
           {params.value}
         </button>
       );
   } else if (!params.show && !params.found){
       return (
-        <button className="tile" id={params.value} onClick={() => flip(params.index)}> </button>
+        <button className="tile" id={params.value} onClick={() => sendClick(params)}> </button>
       );
   } else if (params.found) {
       return (
-        <button className="found_tile" id={params.value} onClick={() => flip(params.index)}>
+        <button className="found_tile" id={params.value} onClick={() => sendClick(params)}>
           {params.value}
         </button>
       );
   }
 }
 
-function RenderGrid(params) {
+function createRow(params, startInd, endInd) {
+
+  var row = [];
+
+  for(var i=startInd; i<=endInd; i++) {
+    row.push(<RenderTile value={params.list[i].value} show={params.list[i].show} onClick={params.onClick} index={i} list={params.list} flippedTiles={params.flippedTiles} />);
+  }
+
+  return (row);
+
+}
+
+function RenderGridV2(params) {
+  var row1 = createRow(params, 0, 3);
+  var row2 = createRow(params, 4, 7);
+  var row3 = createRow(params, 8, 11);
+  var row4 = createRow(params, 12, 15);
+
   return (
     <div className="grid">
       <div className="row">
-        <RenderTile value={params.list[0].value} show={params.list[0].show} onClick={params.onClick} index={0} />
-        <RenderTile value={params.list[1].value} show={params.list[1].show} onClick={params.onClick} index={1} />
-        <RenderTile value={params.list[2].value} show={params.list[2].show} onClick={params.onClick} index={2} />
-        <RenderTile value={params.list[3].value} show={params.list[3].show} onClick={params.onClick} index={3} />
+        {row1}
       </div>
       <div className="row">
-        <RenderTile value={params.list[4].value} show={params.list[4].show} onClick={params.onClick} index={4} />
-        <RenderTile value={params.list[5].value} show={params.list[5].show} onClick={params.onClick} index={5} />
-        <RenderTile value={params.list[6].value} show={params.list[6].show} onClick={params.onClick} index={6} />
-        <RenderTile value={params.list[7].value} show={params.list[7].show} onClick={params.onClick} index={7} />
+        {row2}
       </div>
       <div className="row">
-        <RenderTile value={params.list[8].value} show={params.list[8].show} onClick={params.onClick} index={8} />
-        <RenderTile value={params.list[9].value} show={params.list[9].show} onClick={params.onClick} index={9} />
-        <RenderTile value={params.list[10].value} show={params.list[10].show} onClick={params.onClick} index={10} />
-        <RenderTile value={params.list[11].value} show={params.list[11].show} onClick={params.onClick} index={11} />
+        {row3}
       </div>
       <div className="row">
-        <RenderTile value={params.list[12].value} show={params.list[12].show} onClick={params.onClick} index={12} />
-        <RenderTile value={params.list[13].value} show={params.list[13].show} onClick={params.onClick} index={13} />
-        <RenderTile value={params.list[14].value} show={params.list[14].show} onClick={params.onClick} index={14} />
-        <RenderTile value={params.list[15].value} show={params.list[15].show} onClick={params.onClick} index={15} />
+        {row4}
+      </div>
+    </div>);
+}
+
+function RenderGrid(params) {
+
+  var row1 = [];
+  var row2 = [];
+  var row3 = [];
+  var row4 = [];
+
+  return (
+    <div className="grid">
+      <div className="row">
+        <RenderTile value={params.list[0].value} show={params.list[0].show} onClick={params.onClick} index={0} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[1].value} show={params.list[1].show} onClick={params.onClick} index={1} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[2].value} show={params.list[2].show} onClick={params.onClick} index={2} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[3].value} show={params.list[3].show} onClick={params.onClick} index={3} list={params.list} flippedTiles={params.flippedTiles} />
+      </div>
+      <div className="row">
+        <RenderTile value={params.list[4].value} show={params.list[4].show} onClick={params.onClick} index={4} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[5].value} show={params.list[5].show} onClick={params.onClick} index={5} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[6].value} show={params.list[6].show} onClick={params.onClick} index={6} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[7].value} show={params.list[7].show} onClick={params.onClick} index={7} list={params.list} flippedTiles={params.flippedTiles} />
+      </div>
+      <div className="row">
+        <RenderTile value={params.list[8].value} show={params.list[8].show} onClick={params.onClick} index={8} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[9].value} show={params.list[9].show} onClick={params.onClick} index={9} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[10].value} show={params.list[10].show} onClick={params.onClick} index={10} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[11].value} show={params.list[11].show} onClick={params.onClick} index={11} list={params.list} flippedTiles={params.flippedTiles} />
+      </div>
+      <div className="row">
+        <RenderTile value={params.list[12].value} show={params.list[12].show} onClick={params.onClick} index={12} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[13].value} show={params.list[13].show} onClick={params.onClick} index={13} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[14].value} show={params.list[14].show} onClick={params.onClick} index={14} list={params.list} flippedTiles={params.flippedTiles} />
+        <RenderTile value={params.list[15].value} show={params.list[15].show} onClick={params.onClick} index={15} list={params.list} flippedTiles={params.flippedTiles} />
       </div>
     </div>
   );

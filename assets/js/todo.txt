@@ -1,0 +1,8 @@
+change flip to sendClick
+in RenderGrid:
+  - pass tile list and flipped tiles as param
+in RnederTile:
+  - pass params.list and params.flippedTiles as param for sendGuess (flip function)
+
+in game.ex
+  - client_vew should return updated state with updated tile list
