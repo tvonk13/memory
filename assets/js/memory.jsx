@@ -31,7 +31,7 @@ class Memory extends React.Component {
   }
 
   sendClick(ev) {
-    this.channel.push("tileClick", { index: ev.index list: ev.list })
+    this.channel.push("tileClick", { index: ev.index list: ev.list flippedTiles: ev.flippedTiles })
       .receive("ok", this.gotView.bind(this));
   }
 
