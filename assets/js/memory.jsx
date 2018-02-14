@@ -4,8 +4,8 @@ import { Button } from 'reactstrap';
 
 var tileList = [{value: "A", show: false, found: false}, {value: "B", show: false, found: false}, {value: "C", show: false, found: false}, {value: "D", show: false, found: false}, {value: "E", show: false, found: false}, {value: "F", show: false, found: false}, {value: "G", show: false, found: false}, {value: "H", show: false, found: false}, {value: "A", show: false, found: false}, {value: "B", show: false, found: false}, {value: "C", show: false, found: false}, {value: "D", show: false, found: false}, {value: "E", show: false, found: false}, {value: "F", show: false, found: false}, {value: "G", show: false, found: false}, {value: "H", show: false, found: false}]
 
-export default function game_init(root) {
-  ReactDOM.render(<Demo list={tileList} />, root);
+export default function game_init(root, channel) {
+  ReactDOM.render(<Memory channel={channel} />, root);
 }
 
 class Memory extends React.Component {
@@ -31,7 +31,7 @@ class Memory extends React.Component {
   }
 
   sendClick(ev) {
-    this.channel.push("tileClick", { index: ev.index list: ev.list flippedTiles: ev.flippedTiles })
+    this.channel.push("tileClick", { index: ev.index, list: ev.list, flippedTiles: ev.flippedTiles })
       .receive("ok", this.gotView.bind(this));
   }
 
@@ -76,7 +76,6 @@ function RenderTile(params) {
 }
 
 function createRow(params, startInd, endInd) {
-
   var row = [];
 
   for(var i=startInd; i<=endInd; i++) {
@@ -84,7 +83,6 @@ function createRow(params, startInd, endInd) {
   }
 
   return (row);
-
 }
 
 function RenderGridV2(params) {
@@ -111,12 +109,6 @@ function RenderGridV2(params) {
 }
 
 function RenderGrid(params) {
-
-  var row1 = [];
-  var row2 = [];
-  var row3 = [];
-  var row4 = [];
-
   return (
     <div className="grid">
       <div className="row">
